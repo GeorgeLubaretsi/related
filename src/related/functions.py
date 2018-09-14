@@ -1,5 +1,6 @@
 from __future__ import absolute_import, division, print_function
 
+import re
 from collections import OrderedDict
 from enum import Enum
 
@@ -122,9 +123,13 @@ def convert_key_to_attr_names(cls, original):
     keys_pulled = set()
 
     for a in attrs:
-        key_name = a.metadata.get('key') or a.name
+        # attrs removes leading underscores from keyword arguments
+        a_name_stripped = re.sub('^_*', '', a.name)
+
+        key_name = a.metadata.get('key') or a_name_stripped
+
         if key_name in original:
-            updated[a.name] = original.get(key_name)
+            updated[a_name_stripped] = original.get(key_name)
             keys_pulled.add(key_name)
 
     if getattr(cls, '__related_strict__', False):
